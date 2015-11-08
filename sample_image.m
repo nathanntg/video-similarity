@@ -1,6 +1,6 @@
 %% CONFIGURATION
 % network
-[model, weights, cropped_dim] = caffe_network('GoogleNet');
+[model, weights] = caffe_network('GoogleNet');
 
 % videos
 directory = '';
@@ -12,6 +12,10 @@ caffe.set_mode_cpu();
 
 % create net and load weights
 net = caffe.Net(model, weights, 'test');
+
+% cropped image size
+net_input_shape = net.blobs('data').shape;
+cropped_dim = net_input_shape(1);
 
 %% EXECUTION
 

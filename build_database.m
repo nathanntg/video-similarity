@@ -1,6 +1,6 @@
 %% CONFIGURATION
 % network
-[model, weights, cropped_dim] = caffe_network('AlexNet');
+[model, weights] = caffe_network('AlexNet');
 
 % videos
 directory = './library/explore/';
@@ -12,6 +12,10 @@ caffe.set_mode_cpu();
 
 % create net and load weights
 net = caffe.Net(model, weights, 'test');
+
+% cropped image size
+net_input_shape = net.blobs('data').shape;
+cropped_dim = net_input_shape(1);
 
 % get mean (prevent loading per frame)
 d = load('~/Development/caffe-master/matlab/+caffe/imagenet/ilsvrc_2012_mean.mat');
@@ -49,6 +53,8 @@ for video_id = 1:length(videos)
         frame = readFrame(vh);
         tm_frame = tm_frame + toc;
         
+        imshow(frame);
+        
         % prepare input
         tic;
         input = {prepare_image(frame, cropped_dim, [], im_mean)};
@@ -78,9 +84,8 @@ for video_id = 1:length(videos)
             features(end + 1, :) = scores; %#ok<SAGROW>
         end
         
-        if length(distances) > 100
-            break
-        end
+        % rotate scores
+        last = scores;
     end
     
     break
