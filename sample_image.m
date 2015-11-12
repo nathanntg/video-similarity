@@ -8,7 +8,8 @@ directory = '';
 %% SETUP
 
 % configure caffe
-caffe.set_mode_cpu();
+caffe.set_mode_gpu();
+caffe.set_device(0);
 
 % create net and load weights
 net = caffe.Net(model, weights, 'test');
