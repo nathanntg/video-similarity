@@ -3,7 +3,13 @@
 [model, weights] = caffe_network('AlexNet');
 
 % videos
-directory = './library/explore/';
+directory = './library/youtube/';
+
+% database
+database = './database/youtube_alexnet.mat';
+
+% max duration
+max_duration = 60;
 
 %% SETUP
 
@@ -33,15 +39,15 @@ im_mean = repmat(im_mean, 1, 1, 1, batch_size);
 %% EXECUTION
 
 % get videos
-videos = dir(fullfile(directory, '*.mov'));
+videos = dir(fullfile(directory, '*.mp4'));
 videos = {videos(:).name};
 
 % data
-video_ids = [];
-frame_ids = [];
-timestamps = [];
-features = [];
-distances = [];
+data_video_ids = [];
+data_frame_ids = [];
+data_timestamps = [];
+data_features = single([]);
+data_distances = single([]);
 
 % profile
 tm_frame = 0;
@@ -59,17 +65,22 @@ for video_id = 1:length(videos)
     
     % all scores (for all frames)
     all_scores = {};
-    all_times = {};
+    all_times = [];
     
     % process video in batches of frames
     while true
+        % stop after a minute
+        if max_duration < vh.CurrentTime
+            break
+        end
+        
         % load batch of frames
         batch = cell(1, batch_size);
         i = 1;
         while hasFrame(vh) && i <= batch_size
             % read frames
             tic;
-            all_times{end + 1} = vh.CurrentTime;  %#ok<SAGROW>
+            all_times(end + 1) = vh.CurrentTime; %#ok<SAGROW>
             frame = readFrame(vh);
             tm_frame = tm_frame + toc;
             
@@ -82,9 +93,9 @@ for video_id = 1:length(videos)
         cur_batch_size = i - 1;
         
         % handle partial batches
-        if 1 == i % no frames, done
+        if 0 == cur_batch_size % no frames, done
             break
-        elseif i <= batch_size % smaller batch, pad with zeros
+        elseif cur_batch_size < batch_size % smaller batch, pad with zeros
             while i <= batch_size
                 batch{i} = zeros([network_dim network_dim 3], 'like', batch{1});
                 i = i + 1;
@@ -115,8 +126,19 @@ for video_id = 1:length(videos)
     % concatenate all scores together
     all_scores = cat(2, all_scores{:});
     
-    break;
+    % get distances
+    distances = sqrt(mean(diff(all_scores, 1, 2) .^ 2, 1));
+    
+    % append video id
+    data_video_ids = [data_video_ids (video_id * ones(size(all_times)))]; %#ok<AGROW>
+    data_frame_ids = [data_frame_ids 1:length(all_times)]; %#ok<AGROW>
+    data_timestamps = [data_timestamps all_times]; %#ok<AGROW>
+    data_features = [data_features all_scores]; %#ok<AGROW>
+    data_distances = [data_distances nan distances]; %#ok<AGROW>
 end
+
+% save
+save(database, 'data_video_ids', 'data_frame_ids', 'data_timestamps', 'data_features', 'data_distances');
 
 %% CLEAN UP
 caffe.reset_all();
