@@ -1,15 +1,13 @@
+function build_database(directory, network, database, max_duration)
+
 %% CONFIGURATION
-% network
-[model, weights] = caffe_network('AlexNet');
-
-% videos
-directory = './library/youtube/';
-
-% database
-database = './database/youtube_alexnet.mat';
+% load network
+[model, weights] = caffe_network(network);
 
 % max duration
-max_duration = 60;
+if ~exist('max_duration', 'var') || isempty(max_duration)
+    max_duration = 60;
+end
 
 %% SETUP
 
@@ -76,7 +74,7 @@ for video_id = 1:length(videos)
     % process video in batches of frames
     while true
         % stop after a minute
-        if max_duration < vh.CurrentTime
+        if max_duration > 0 && max_duration < vh.CurrentTime
             break
         end
         
@@ -86,7 +84,7 @@ for video_id = 1:length(videos)
         while hasFrame(vh) && i <= batch_size
             % read frames
             tic;
-            all_times(end + 1) = vh.CurrentTime; %#ok<SAGROW>
+            all_times(end + 1) = vh.CurrentTime; %#ok<AGROW>
             frame = readFrame(vh);
             tm_frame = tm_frame + toc;
             
@@ -128,7 +126,7 @@ for video_id = 1:length(videos)
         end
         
         % append to scores
-        all_scores{end + 1} = scores; %#ok<SAGROW>
+        all_scores{end + 1} = scores; %#ok<AGROW>
         
         % SCORES FROM SECOND TO LAST LAYER (pre-softmax)
         
@@ -139,7 +137,7 @@ for video_id = 1:length(videos)
         end
         
         % append to scores
-        all_scores2{end + 1} = scores2; %#ok<SAGROW>
+        all_scores2{end + 1} = scores2; %#ok<AGROW>
     end
     
     % concatenate all scores together
@@ -161,7 +159,9 @@ for video_id = 1:length(videos)
 end
 
 % save
-save(database, 'videos', 'data_video_ids', 'data_frame_ids', 'data_timestamps', 'data_features', 'data_distances', 'data_features2', 'data_distances2');
+save(database, '-v7.3', 'videos', 'data_video_ids', 'data_frame_ids', 'data_timestamps', 'data_features', 'data_distances', 'data_features2', 'data_distances2');
 
 %% CLEAN UP
 caffe.reset_all();
+
+end

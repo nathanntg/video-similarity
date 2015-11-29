@@ -1,15 +1,19 @@
+function [labels, scores] = sample_image(image, network, txt_labels)
+
 %% CONFIGURATION
 % network
-[model, weights] = caffe_network('GoogleNet');
+[model, weights] = caffe_network(network);
 
-% videos
-directory = '';
+% default labels
+if ~exist('txt_labels', 'var') || isempty(txt_labels)
+    txt_labels = 'resources/labels.txt';
+end
 
 %% SETUP
 
 % configure caffe
-caffe.set_mode_gpu();
-caffe.set_device(0);
+caffe.set_mode_cpu();
+%caffe.set_device(0);
 
 % create net and load weights
 net = caffe.Net(model, weights, 'test');
@@ -21,7 +25,7 @@ cropped_dim = net_input_shape(1);
 %% EXECUTION
 
 % load image
-im = imread('library/elephant.jpg');
+im = imread(image);
 
 % prepare input
 input = {prepare_image(im, cropped_dim)};
@@ -32,23 +36,28 @@ output = net.forward(input);
 % scores
 scores = mean(output{1}, 2);
 
-% sorted scores
-[sorted_scores, idx] = sort(scores, 'descend');
-
 % load labels
 labels = {};
-fh = fopen('resources/labels.txt');
+fh = fopen(txt_labels);
 while 1
     line = fgetl(fh);
     if ~ischar(line), break, end
-    labels{end+1} = line; %#ok<SAGROW>
+    labels{end+1} = line; %#ok<AGROW>
 end
 fclose(fh);
 
-% print top five labels
-for i = 1:5
-    fprintf('%f\t%s\n', sorted_scores(i), labels{idx(i)});
+% print if no output arguments
+if 0 == nargout
+    % sorted scores
+    [sorted_scores, idx] = sort(scores, 'descend');
+
+    % print top five labels
+    for i = 1:5
+        fprintf('%f\t%s\n', sorted_scores(i), labels{idx(i)});
+    end
 end
 
 %% CLEAN UP
 caffe.reset_all();
+
+end
