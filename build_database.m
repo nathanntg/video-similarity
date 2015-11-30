@@ -30,8 +30,7 @@ net.blobs('data').reshape([net_input_shape(1:(end - 1)) batch_size]);
 second_to_last_layer = net.blob_names{end-1};
 
 % get mean (prevent loading per frame)
-d = load('~/Development/caffe-master/matlab/+caffe/imagenet/ilsvrc_2012_mean.mat');
-im_mean = d.mean_data;
+im_mean = get_mean_image();
 if network_dim ~= size(im_mean, 1)
     im_mean = imresize(im_mean, [network_dim network_dim]);
 end

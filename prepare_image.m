@@ -3,8 +3,7 @@ function input = prepare_image(im, cropped_dim, image_dim, im_mean)
 
 % get mean data
 if ~exist('im_mean', 'var') || isempty(im_mean)
-    d = load('~/Development/caffe-master/matlab/+caffe/imagenet/ilsvrc_2012_mean.mat');
-    im_mean = d.mean_data;
+    im_mean = get_mean_image();
 end
 
 % parameters
