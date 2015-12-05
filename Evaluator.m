@@ -16,9 +16,6 @@ classdef Evaluator
         % database
         db
         
-        % max duration
-        max_duration = 60;
-        
         % batch size
         batch_size = 30;
     end
@@ -59,31 +56,6 @@ classdef Evaluator
         
         function delete(EV)
             caffe.reset_all();
-        end
-        
-        function video = loadVideo(EV, video_file)
-            % open video reader
-            vh = VideoReader(video_file);
-            
-            % store frames
-            frames = {};
-            
-            % had frame
-            while hasFrame(vh)
-                % too long
-                if EV.max_duration > 0 && vh.CurrentTime > EV.max_duration
-                    break
-                end
-                
-                % read frame
-                frame = readFrame(vh);
-                
-                % add frame
-                frames{end + 1} = frame; %#ok<AGROW>
-            end
-            
-            % turn into a video
-            video = cat(1 + ndims(frames{1}), frames{:});
         end
         
         function features = processVideo(EV, video)
