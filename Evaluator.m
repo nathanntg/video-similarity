@@ -129,8 +129,8 @@ classdef Evaluator
     end
     
    methods (Abstract)
-       pruned_features = pruneFeatures(SM, features)
-       [match, score] = matchFeatures(SM, features)
+       pruned_features = pruneFeatures(EV, features)
+       [match, score] = matchFeatures(EV, pruned_features)
    end
 end
 
