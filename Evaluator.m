@@ -18,6 +18,9 @@ classdef Evaluator
         
         % max duration
         max_duration = 60;
+        
+        % batch size
+        batch_size = 30;
     end
     
     methods
@@ -34,12 +37,14 @@ classdef Evaluator
             % cropped image size
             net_input_shape = EV.net.blobs('data').shape;
             EV.net_dim = net_input_shape(1);
+            EV.net.blobs('data').reshape([net_input_shape(1:(end - 1)) EV.batch_size]);
             
             % get mean (prevent loading per frame)
             EV.im_mean = get_mean_image();
             if EV.net_dim ~= size(EV.im_mean, 1)
                 EV.im_mean = imresize(EV.im_mean, [EV.net_dim EV.net_dim]);
             end
+            EV.im_mean = repmat(EV.im_mean, 1, 1, 1, EV.batch_size);
             
             % database
             EV.db = load(database);
@@ -91,34 +96,41 @@ classdef Evaluator
             % video shape
             video_shape = size(video);
             
+            % make batch
+            batch = zeros(EV.net_dim, EV.net_dim, 3, EV.batch_size);
+            
             % make features
             features = zeros(blob_shape(1), video_shape(end), 'single');
             
-            for t = 1:video_shape(end)
-                % get frame
-                frame = video(:, :, :, t);
+            for t_start = 1:EV.batch_size:video_shape(end)
+                t_end = t_start + EV.batch_size - 1;
+                for i = 1:EV.batch_size
+                    t = t_start + i - 1;
+                    if t > video_shape(end)
+                        % zero (batch longer than end of video)
+                        batch(:, :, :, i) = zeros(EV.net_dim, EV.net_dim, 3);
+                    else
+                        % resize frame
+                        batch(:, :, :, i) = imresize(video(:, :, :, t), [EV.net_dim EV.net_dim]);
+                    end
+                end
                 
-                % resize frame
-                frame = imresize(frame, [EV.net_dim EV.net_dim]);
-                
-                % prepare frame
-                prepared = {prepare_frames(frame, EV.im_mean)};
+                % prepare input
+                input = {prepare_frames(batch, EV.im_mean)};
                 
                 % process in network
-                EV.net.forward(prepared);
+                EV.net.forward(input);
                 
                 % store feature
-                features(:, t) = EV.net.blobs(blob_name).get_data();
+                output = EV.net.blobs(blob_name).get_data();
+                features(:, t_start:min(t_end, video_shape(end))) = output(:, 1:(1 + min(t_end, video_shape(end)) - t_start));
             end
-        end
-        
-        function match = matchFeatures(EV, features)
-            % load video
         end
     end
     
-%    methods (Abstract)
-%        createMovie(SM, image, eye_x, eye_y)
-%    end
+   methods (Abstract)
+       pruned_features = pruneFeatures(SM, features)
+       [match, score] = matchFeatures(SM, features)
+   end
 end
 
