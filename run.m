@@ -47,3 +47,13 @@ video = e.loadVideo('./library/youtube/0ch-eJoT9IM.mp4');
 features = e.processVideo(video);
 pruned_features = e.pruneFeatures(features);
 [match, score] = e.matchFeatures(pruned_features);
+disp(match);
+disp(score);
+
+e = EvaluatorDistance('GoogleNet', './database/distance/youtube_googlenet.mat');
+video = e.loadVideo('./library/youtube/0ch-eJoT9IM.mp4');
+features = e.processVideo(video);
+pruned_features = e.pruneFeatures(features);
+[match, score] = e.matchFeatures(pruned_features);
+disp(match);
+disp(score);
