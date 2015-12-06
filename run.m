@@ -57,3 +57,14 @@ pruned_features = e.pruneFeatures(features);
 [match, score] = e.matchFeatures(pruned_features);
 disp(match);
 disp(score);
+
+%% BUILD DEFORMED COLLECTION
+directory_videos = './library/youtube/';
+directory_deformed = './library/deformed/';
+build_deformed_many(directory_videos, directory_deformed, 'crop-horizontal', {0.15 0.3 0.45 0.6});
+build_deformed_many(directory_videos, directory_deformed, 'resize', {0.5 0.25 0.125});
+build_deformed_many(directory_videos, directory_deformed, 'rotate', {15 30 45 60 75 90});
+build_deformed_many(directory_videos, directory_deformed, 'color', {0.1 0.2 0.3});
+build_deformed_many(directory_videos, directory_deformed, 'encode', {'mj2' 'avi'});
+build_deformed_many(directory_videos, directory_deformed, 'bw');
+

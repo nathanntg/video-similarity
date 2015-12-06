@@ -1,5 +1,5 @@
-function video = load_video(video_file, max_duration)
-%LOAD_VIDEO Loads a video
+function video = video_read(video_file, max_duration)
+%VIDEO_READ Loads a video
 
 if ~exist('max_duration', 'var') || isempty(max_duration)
     max_duration = 60;
