@@ -83,7 +83,7 @@ for j = 1:length(video_files)
     results = [results; row]; %#ok<AGROW>
 end
 
-% get 10 deformed videos
+% get 12 deformed videos
 directory = './library/deformed/';
 video_files = [find_videos([directory 'resize/'], '*-0.5.*', 2) find_videos([directory 'crop-horizontal/'], '*-0.15.*', 2) find_videos([directory 'crop-horizontal/'], '*-0.3.*', 2) find_videos([directory 'color/'], '*-0.1.*', 2) find_videos([directory 'encode/'], '*-1.*', 2) find_videos([directory 'encode/'], '*-2.*', 2)];
 num = length(video_files);
