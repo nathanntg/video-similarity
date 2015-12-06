@@ -3,7 +3,7 @@ classdef EvaluatorDistance < Evaluator
     %   Detailed explanation goes here
     
     properties
-        top_matches = 20;
+        top_matches = 10;
     end
     
     methods
@@ -32,7 +32,7 @@ classdef EvaluatorDistance < Evaluator
             distances = sqrt(sum(bsxfun(@(a, b) (a - b) .^ 2, pruned_features(:, 1), EV.db.data_features), 1));
             
             % normalizing constant for scores
-            norm = max(distances); % sqrt(sum(pruned_features .^ 2));
+            norm = max(EV.db.data_distances); % sqrt(sum(pruned_features .^ 2));
             
             % TODO: potentially select one distance per video id
             
