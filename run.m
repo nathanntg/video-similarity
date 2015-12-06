@@ -1,5 +1,8 @@
 %% TEST NETWORKS
-sample_image('library/elephant.jpg', 'GoogleNet');
+sample_image('library/elephant.jpg', 'AlexNet');
+sample_image('library/guitar.jpg', 'AlexNet');
+sample_image('library/lamp.jpg', 'AlexNet');
+sample_image('library/crown.jpg', 'AlexNet');
 
 
 %% BUILD DATABASE
