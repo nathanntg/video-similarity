@@ -43,7 +43,7 @@ classdef EvaluatorOrder < Evaluator
                     
                     % correctly normalize score by true number of features
                     % (to reflect partial match)
-                    score = score * (size(pruned_features, 2) - 1 / size(pruned_features, 2));
+                    score = score * ((size(pruned_features, 2) - 1) / size(pruned_features, 2));
                 else
                     match = [];
                     score = 0;

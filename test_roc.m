@@ -21,8 +21,8 @@ results = [];
 old_rng = rng;
 rng('default');
 
-% get 10 normal videos
-num = 10;
+% get 20 normal videos
+num = 20;
 directory = './library/youtube/';
 ground_truth = [ground_truth true(1, num)];
 
@@ -41,7 +41,7 @@ for j = 1:length(video_files)
     for k = 1:length(evaluators)
         [match, score] = evaluators{k}.matchVideoFile(video_file);
         if isempty(match)
-            score = inf;
+            score = 0;
         else
             % accurately matched?
             if strcmp(video_name, match.video)
@@ -74,7 +74,7 @@ for j = 1:length(video_files)
     for k = 1:length(evaluators)
         [match, score] = evaluators{k}.matchVideoFile(video_file);
         if isempty(match)
-            score = inf;
+            score = 0;
         end
         row(k) = score;
     end
@@ -84,7 +84,8 @@ for j = 1:length(video_files)
 end
 
 % get 10 deformed videos
-video_files = {find_videos([directory 'resize/'], '*-0.5.*', 2) find_videos([directory 'crop-horizontal/'], '*-0.15.*', 2) find_videos([directory 'crop-horizontal/'], '*-0.3.*', 2) find_videos([directory 'color/'], '*-0.1.*', 2) find_videos([directory 'encode/'], '*-1.*', 2) find_videos([directory 'encode/'], '*-2.*', 2)};
+directory = './library/deformed/';
+video_files = [find_videos([directory 'resize/'], '*-0.5.*', 2) find_videos([directory 'crop-horizontal/'], '*-0.15.*', 2) find_videos([directory 'crop-horizontal/'], '*-0.3.*', 2) find_videos([directory 'color/'], '*-0.1.*', 2) find_videos([directory 'encode/'], '*-1.*', 2) find_videos([directory 'encode/'], '*-2.*', 2)];
 num = length(video_files);
 ground_truth = [ground_truth true(1, num)];
 
@@ -101,7 +102,7 @@ for j = 1:length(video_files)
     for k = 1:length(evaluators)
         [match, score] = evaluators{k}.matchVideoFile(video_file);
         if isempty(match)
-            score = inf;
+            score = 0;
         else
             % get match name
             [~, match_name, ~] = fileparts(match.video);
@@ -116,6 +117,7 @@ for j = 1:length(video_files)
 
     % append to results
     results = [results; row]; %#ok<AGROW>
+    matched = [matched; matched_row]; %#ok<AGROW>
 end
 
 rng(old_rng);
