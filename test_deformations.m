@@ -45,12 +45,12 @@ for i = 1:length(deformations)
             disp(video_nm);
             
             % load video
-            video = video_read(fullfile(directory_videos, [video_nm '.mp4']));
+            video_file = fullfile(directory_videos, [video_nm '.mp4']);
             
             % process video with all evaluators
             row = zeros(1, length(evaluators));
             for k = 1:length(evaluators)
-                [match, score] = evaluators{k}.matchVideo(video);
+                [match, score] = evaluators{k}.matchVideoFile(video_file);
                 matched = match;
                 row(k) = score;
             end
@@ -61,12 +61,12 @@ for i = 1:length(deformations)
         end
             
         % load video
-        video = video_read(fullfile(directory_deformed, deformation, video_files{j}));
+        video_file = fullfile(directory_deformed, deformation, video_files{j});
             
         % process video with all evaluators
         row = zeros(1, length(evaluators));
         for k = 1:length(evaluators)
-            [match, score] = e.matchVideo(video);
+            [match, score] = evaluators{k}.matchVideoFile(video_file);
             if ~strcmp(matched.video, match.video)
                 score = nan;
             end
