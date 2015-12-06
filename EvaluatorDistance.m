@@ -32,7 +32,7 @@ classdef EvaluatorDistance < Evaluator
             distances = sqrt(sum(bsxfun(@(a, b) (a - b) .^ 2, pruned_features(:, 1), EV.db.data_features), 1));
             
             % normalizing constant for scores
-            norm = sqrt(sum(pruned_features .^ 2));
+            norm = max(distances); % sqrt(sum(pruned_features .^ 2));
             
             % TODO: potentially select one distance per video id
             
@@ -45,12 +45,12 @@ classdef EvaluatorDistance < Evaluator
             % matches
             matches_video_id = zeros(1, length(match_starts));
             matches_timestamp = zeros(1, length(match_starts));
-            matches_scores = zeros(1, length(match_starts));
+            matches_scores = nan(1, length(match_starts));
             
             % list of matches
             for i = 1:length(match_starts)
                 % score number of matching frames
-                score = (norm - distances(i)) / norm;
+                score = max(norm - distances(i), 0) / norm;
                 
                 % start
                 match_start = match_starts(i);
@@ -96,7 +96,7 @@ classdef EvaluatorDistance < Evaluator
                 
                 % get lowest distance
                 [cur_score, cur] = min(distances);
-                cur_score = (norm - cur_score) / norm;
+                cur_score = max(norm - cur_score, 0) / norm;
                 
                 % not sequential
                 if cur < last

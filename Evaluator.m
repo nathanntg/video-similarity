@@ -98,6 +98,12 @@ classdef Evaluator
                 features(:, t_start:min(t_end, video_shape(end))) = output(:, 1:(1 + min(t_end, video_shape(end)) - t_start));
             end
         end
+        
+        function [match, score] = matchVideo(EV, video)
+            features = EV.processVideo(video);
+            features = EV.pruneFeatures(features);
+            [match, score] = EV.matchFeatures(features);
+        end
     end
     
    methods (Abstract)

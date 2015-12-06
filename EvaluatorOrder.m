@@ -52,7 +52,7 @@ classdef EvaluatorOrder < Evaluator
             % matches
             matches_video_id = zeros(1, length(match_starts));
             matches_timestamp = zeros(1, length(match_starts));
-            matches_scores = zeros(1, length(match_starts));
+            matches_scores = nan(1, length(match_starts));
             
             % list of matches
             for i = 1:length(match_starts)
