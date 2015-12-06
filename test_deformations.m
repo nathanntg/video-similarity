@@ -1,19 +1,22 @@
-%% RUN TESTS
-class = {'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance'};
-networks = {'AlexNet' 'AlexNet' 'AlexNet' 'AlexNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'R-CNN' 'R-CNN' 'R-CNN' 'R-CNN'};
-databases = {'./database/order/youtube_alexnet.mat' './database/order/youtube_alexnet2.mat' './database/distance/youtube_alexnet.mat' './database/distance/youtube_alexnet2.mat' './database/order/youtube_googlenet.mat' './database/order/youtube_googlenet2.mat' './database/distance/youtube_googlenet.mat' './database/distance/youtube_googlenet2.mat' './database/order/youtube_rcnn.mat' './database/order/youtube_rcnn2.mat' './database/distance/youtube_rcnn.mat' './database/distance/youtube_rcnn2.mat'};
-layers = {1 2 1 2 1 2 1 2 1 2 1 2};
+%% SETUP EVALUATORS
+if ~exist('evaluators', 'var')
+    class = {'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance'};
+    networks = {'AlexNet' 'AlexNet' 'AlexNet' 'AlexNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'R-CNN' 'R-CNN' 'R-CNN' 'R-CNN'};
+    databases = {'./database/order/youtube_alexnet.mat' './database/order/youtube_alexnet2.mat' './database/distance/youtube_alexnet.mat' './database/distance/youtube_alexnet2.mat' './database/order/youtube_googlenet.mat' './database/order/youtube_googlenet2.mat' './database/distance/youtube_googlenet.mat' './database/distance/youtube_googlenet2.mat' './database/order/youtube_rcnn.mat' './database/order/youtube_rcnn2.mat' './database/distance/youtube_rcnn.mat' './database/distance/youtube_rcnn2.mat'};
+    layers = {1 2 1 2 1 2 1 2 1 2 1 2};
 
-% make evaluators
-evaluators = cell(1, length(class));
-for i = 1:length(class)
-    evaluators{i} = feval(class{i}, networks{i}, databases{i}, layers{i});
+    % make evaluators
+    evaluators = cell(1, length(class));
+    for i = 1:length(class)
+        evaluators{i} = feval(class{i}, networks{i}, databases{i}, layers{i});
+    end
 end
 
+%% RUN TESTS
 % make list of videos
 result_videos = {};
 results = [];
-deformations = {'bw'}; % 'resize' 'rotate' 'crop-horizontal' 'color' 'bw'};
+deformations = {'bw', 'resize' 'rotate' 'crop-horizontal' 'color' 'bw'};
 directory_videos = './library/youtube/';
 directory_deformed = './library/deformed/';
 for i = 1:length(deformations)
@@ -21,7 +24,10 @@ for i = 1:length(deformations)
     deformation = deformations{i};
     
     % get all videos
-    video_files = dir(fullfile(directory_deformed, deformation, '*-*.*'));
+    video_files = dir(fullfile(directory_deformed, deformation, '*.*'));
+    video_files = video_files(cellfun(@(x) ~x, {video_files.isdir})); % files only
+    video_files = video_files(cellfun(@(x) isempty(regexp(x, '^\.', 'once')), {video_files.name}));
+    video_files = video_files(cellfun(@(x) isempty(regexp(x, '\.mat$', 'once')), {video_files.name})); % exclude cache files
     video_files = {video_files(:).name};
     
     % done
@@ -39,7 +45,7 @@ for i = 1:length(deformations)
             end
             
             % append to video done list
-            done{end + 1} = video_nm;
+            done{end + 1} = video_nm; %#ok<SAGROW>
             
             % projess non-deformed
             disp(video_nm);
@@ -56,8 +62,8 @@ for i = 1:length(deformations)
             end
             
             % append to results
-            result_videos{end + 1} = video_nm;
-            results = [results; row];
+            result_videos{end + 1} = video_nm; %#ok<SAGROW>
+            results = [results; row]; %#ok<AGROW>
         end
             
         % load video
@@ -67,14 +73,14 @@ for i = 1:length(deformations)
         row = zeros(1, length(evaluators));
         for k = 1:length(evaluators)
             [match, score] = evaluators{k}.matchVideoFile(video_file);
-            if ~strcmp(matched.video, match.video)
+            if ~isempty(match) && ~strcmp(matched.video, match.video)
                 score = nan;
             end
             row(k) = score;
         end
 
         % append to results
-        result_videos{end + 1} = video_nm;
-        results = [results; row];
+        result_videos{end + 1} = [deformation filesep video_files{j}]; %#ok<SAGROW>
+        results = [results; row]; %#ok<AGROW>
     end
 end
