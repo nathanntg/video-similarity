@@ -67,7 +67,7 @@ classdef Evaluator
             [d, f, ~] = fileparts(video_file);
                 
             % field name
-            fld_nm = sprintf('%s_%d', EV.net_nm, EV.layer);
+            fld_nm = sprintf('%s_%d', strrep(EV.net_nm, '-', ''), EV.layer);
             
             % cache file
             cache_file = fullfile(d, [f '.mat']);
@@ -91,7 +91,7 @@ classdef Evaluator
             % extract features
             % layer name
             blob0_name = EV.net.blob_names{end};
-            blob1_name = EV.net.blob_names{end};
+            blob1_name = EV.net.blob_names{end - 1};
             
             % shape
             blob0_shape = EV.net.blobs(blob0_name).shape;
@@ -135,8 +135,8 @@ classdef Evaluator
             end
             
             % add to cache
-            s.(sprintf('%s_%d', EV.net_nm, 0)) = features0;
-            s.(sprintf('%s_%d', EV.net_nm, 1)) = features1;
+            s.(sprintf('%s_%d', strrep(EV.net_nm, '-', ''), 0)) = features0;
+            s.(sprintf('%s_%d', strrep(EV.net_nm, '-', ''), 1)) = features1;
             
             % update cache
             save(cache_file, '-v7.3', '-struct', 's');

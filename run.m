@@ -42,8 +42,9 @@ xlabel('Distance between feature vectors');
 saveTightFigure('./database/distance/youtube_rcnn2.png');
 
 %% DEBUG EVALUATOR
+video = video_read('./library/youtube/0ch-eJoT9IM.mp4', 60);
+
 e = EvaluatorOrder('GoogleNet', './database/order/youtube_googlenet.mat');
-video = e.loadVideo('./library/youtube/0ch-eJoT9IM.mp4');
 features = e.processVideo(video);
 pruned_features = e.pruneFeatures(features);
 [match, score] = e.matchFeatures(pruned_features);
@@ -51,7 +52,6 @@ disp(match);
 disp(score);
 
 e = EvaluatorDistance('GoogleNet', './database/distance/youtube_googlenet.mat');
-video = e.loadVideo('./library/youtube/0ch-eJoT9IM.mp4');
 features = e.processVideo(video);
 pruned_features = e.pruneFeatures(features);
 [match, score] = e.matchFeatures(pruned_features);
