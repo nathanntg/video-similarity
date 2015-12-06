@@ -56,12 +56,11 @@ for j = 1:length(video_files)
     matched = [matched; matched_row]; %#ok<AGROW>
 end
 
-
 % get 10 novel videos
 num = 10;
 directory = './library/novel/';
 ground_truth = [ground_truth false(1, num)];
-matched = [matched; false(length(evaluators), num)];
+matched = [matched; false(num, length(evaluators))];
 
 video_files = find_videos(directory, [], num);
 

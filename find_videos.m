@@ -4,7 +4,7 @@ if ~exist('flt', 'var') || isempty(flt)
 	flt = '*.*';
 end
 
-if ~exist('shuffle', 'var')
+if ~exist('shuff', 'var')
 	shuff = false;
 end
 
