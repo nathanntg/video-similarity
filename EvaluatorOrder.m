@@ -38,7 +38,12 @@ classdef EvaluatorOrder < Evaluator
             % no match
             if ~any(idx)
                 if size(pruned_features, 2) > 1
+                    % match remaining features
                     [match, score] = EV.matchFeatures(pruned_features(:, 2:end));
+                    
+                    % correctly normalize score by true number of features
+                    % (to reflect partial match)
+                    score = score * (size(pruned_features, 2) - 1 / size(pruned_features, 2));
                 else
                     match = [];
                     score = 0;
@@ -87,6 +92,11 @@ classdef EvaluatorOrder < Evaluator
             
             % get best match
             [score, idx] = max(matches_scores);
+            
+            % normalize best score
+            score = score / size(pruned_features, 2);
+            
+            % make match structure
             match = struct('video', EV.db.videos(matches_video_id(idx)), 'video_id', matches_video_id(idx), 'timestamp', matches_timestamp(idx));
         end
     end
