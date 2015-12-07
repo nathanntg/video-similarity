@@ -61,6 +61,13 @@ pruned_features = e.pruneFeatures(features);
 disp(match);
 disp(score);
 
+e = EvaluatorIntersection('GoogleNet', './database/order/youtube_googlenet.mat');
+features = e.processVideo(video);
+pruned_features = e.pruneFeatures(features);
+[match, score] = e.matchFeatures(pruned_features);
+disp(match);
+disp(score);
+
 %% BUILD DEFORMED COLLECTION
 directory_videos = './library/youtube/';
 directory_deformed = './library/deformed/';

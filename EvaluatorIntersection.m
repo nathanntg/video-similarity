@@ -1,18 +1,22 @@
-classdef EvaluatorOrder < Evaluator
-    %EVALUATORORDER Summary of this class goes here
+classdef EvaluatorIntersection < Evaluator
+    %EVALUATORINTERSECTION Summary of this class goes here
     %   Detailed explanation goes here
     
     properties
-        max_partials = 5;
+        weight_overlap = 0.75;
+        weight_order = 0.25;
     end
     
     methods
-        function EV = EvaluatorOrder(network, database, layer)
+        function EV = EvaluatorIntersection(network, database, layer)
             if ~exist('layer', 'var')
                 layer = [];
             end
             
             EV@Evaluator(network, database, layer);
+            
+            % down sample further
+            EV.db.data_features = EV.db.data_features(1, :);
         end
         
         function pruned_features = pruneFeatures(EV, features)
@@ -59,11 +63,11 @@ classdef EvaluatorOrder < Evaluator
             matches_timestamp = zeros(1, length(match_starts));
             matches_scores = nan(1, length(match_starts));
             
+            % get query features
+            feature_list_query = pruned_features(:);
+            
             % list of matches
             for i = 1:length(match_starts)
-                % score number of matching frames
-                score = 1; % exact match
-                
                 % start
                 match_start = match_starts(i);
                 
@@ -75,14 +79,20 @@ classdef EvaluatorOrder < Evaluator
                     continue;
                 end
                 
-                % get remaining frames
-                remaining_frames = sum(EV.db.data_video_ids((match_start+1):end) == cur_video_id);
+                % get remaining frames INCLUDING self
+                remaining_frames = sum(EV.db.data_video_ids((match_start + 1):end) == cur_video_id);
                 
-                % score remaining frames
-                if 0 < remaining_frames
-                    remaining_features = EV.db.data_features(:, (match_start + 1):(match_start + remaining_frames));
-                    score = score + EV.matchRemainingFeatures(pruned_features(:, 2:end), remaining_features, 1 + EV.max_partials);
-                end
+                % get overlap
+                feature_list_video = EV.db.data_features(:, match_start:(match_start + remaining_frames));
+                feature_list_video = feature_list_video(:);
+                
+                num_intersecting = length(intersect(feature_list_video, feature_list_query));
+                num_union = length(union(feature_list_video, feature_list_query));
+                num_min = min(length(feature_list_video), length(feature_list_query));
+                num_equal = sum(feature_list_video(1:num_min) == feature_list_query(1:num_min));
+                
+                % score frames
+                score = (EV.weight_overlap * num_intersecting / num_union) + (EV.weight_order * num_equal / num_min);
                 
                 % store match
                 matches_video_id(i) = cur_video_id;
@@ -92,9 +102,6 @@ classdef EvaluatorOrder < Evaluator
             
             % get best match
             [score, idx] = max(matches_scores);
-            
-            % normalize best score
-            score = score / size(pruned_features, 2);
             
             % make match structure
             match = struct('video', EV.db.videos(matches_video_id(idx)), 'video_id', matches_video_id(idx), 'timestamp', matches_timestamp(idx));
