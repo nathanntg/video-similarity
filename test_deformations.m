@@ -1,9 +1,9 @@
 %% SETUP EVALUATORS
 if ~exist('evaluators', 'var')
-    class = {'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance'};
-    networks = {'AlexNet' 'AlexNet' 'AlexNet' 'AlexNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'R-CNN' 'R-CNN' 'R-CNN' 'R-CNN'};
-    databases = {'./database/order/youtube_alexnet.mat' './database/order/youtube_alexnet2.mat' './database/distance/youtube_alexnet.mat' './database/distance/youtube_alexnet2.mat' './database/order/youtube_googlenet.mat' './database/order/youtube_googlenet2.mat' './database/distance/youtube_googlenet.mat' './database/distance/youtube_googlenet2.mat' './database/order/youtube_rcnn.mat' './database/order/youtube_rcnn2.mat' './database/distance/youtube_rcnn.mat' './database/distance/youtube_rcnn2.mat'};
-    layers = {1 2 1 2 1 2 1 2 1 2 1 2};
+    class = {'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection'};
+    networks = {'AlexNet' 'AlexNet' 'GoogleNet' 'GoogleNet' 'R-CNN' 'R-CNN'};
+    databases = {'./database/order/youtube_alexnet.mat' './database/order/youtube_alexnet2.mat' './database/order/youtube_googlenet.mat' './database/order/youtube_googlenet2.mat' './database/order/youtube_rcnn.mat' './database/order/youtube_rcnn2.mat'};
+    layers = {1 2 1 2 1 2};
 
     % make evaluators
     evaluators = cell(1, length(class));
@@ -15,8 +15,9 @@ end
 %% RUN TESTS
 % make list of videos
 result_videos = {};
+result_deformations = {};
 results = [];
-deformations = {'bw', 'resize' 'rotate' 'crop-horizontal' 'color' 'bw'};
+deformations = {'bw' 'resize' 'rotate' 'crop-horizontal' 'color' 'encode'};
 directory_videos = './library/youtube/';
 directory_deformed = './library/deformed/';
 for i = 1:length(deformations)
@@ -63,6 +64,7 @@ for i = 1:length(deformations)
             
             % append to results
             result_videos{end + 1} = video_nm; %#ok<SAGROW>
+            result_deformations{end + 1} = deformation; %#ok<SAGROW>
             results = [results; row]; %#ok<AGROW>
         end
             
@@ -81,6 +83,7 @@ for i = 1:length(deformations)
 
         % append to results
         result_videos{end + 1} = [deformation filesep video_files{j}]; %#ok<SAGROW>
+        result_deformations{end + 1} = deformation; %#ok<SAGROW>
         results = [results; row]; %#ok<AGROW>
     end
 end

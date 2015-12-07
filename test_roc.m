@@ -1,9 +1,9 @@
 %% SETUP EVALUATORS
 if ~exist('evaluators', 'var')
-    class = {'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance' 'EvaluatorOrder' 'EvaluatorOrder' 'EvaluatorDistance' 'EvaluatorDistance'};
-    networks = {'AlexNet' 'AlexNet' 'AlexNet' 'AlexNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'GoogleNet' 'R-CNN' 'R-CNN' 'R-CNN' 'R-CNN'};
-    databases = {'./database/order/youtube_alexnet.mat' './database/order/youtube_alexnet2.mat' './database/distance/youtube_alexnet.mat' './database/distance/youtube_alexnet2.mat' './database/order/youtube_googlenet.mat' './database/order/youtube_googlenet2.mat' './database/distance/youtube_googlenet.mat' './database/distance/youtube_googlenet2.mat' './database/order/youtube_rcnn.mat' './database/order/youtube_rcnn2.mat' './database/distance/youtube_rcnn.mat' './database/distance/youtube_rcnn2.mat'};
-    layers = {1 2 1 2 1 2 1 2 1 2 1 2};
+    class = {'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection' 'EvaluatorIntersection'};
+    networks = {'AlexNet' 'AlexNet' 'GoogleNet' 'GoogleNet' 'R-CNN' 'R-CNN'};
+    databases = {'./database/order/youtube_alexnet.mat' './database/order/youtube_alexnet2.mat' './database/order/youtube_googlenet.mat' './database/order/youtube_googlenet2.mat' './database/order/youtube_rcnn.mat' './database/order/youtube_rcnn2.mat'};
+    layers = {1 2 1 2 1 2};
 
     % make evaluators
     evaluators = cell(1, length(class));
@@ -21,8 +21,8 @@ results = [];
 old_rng = rng;
 rng('default');
 
-% get 20 normal videos
-num = 20;
+% get 40 normal videos
+num = 40;
 directory = './library/youtube/';
 ground_truth = [ground_truth true(1, num)];
 
@@ -57,7 +57,7 @@ for j = 1:length(video_files)
 end
 
 % get 10 novel videos
-num = 10;
+num = 20;
 directory = './library/novel/';
 ground_truth = [ground_truth false(1, num)];
 matched = [matched; false(num, length(evaluators))];
